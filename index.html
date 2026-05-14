@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Todo List Akademik - Fernanda Tri Prastya</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+            --bg: #f1f5f9;
+            --text-main: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        header p {
+            margin: 10px 0 0;
+            color: #64748b;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border-bottom: 4px solid transparent;
+        }
+
+        .stat-val { font-size: 1.8rem; font-weight: 800; display: block; color: var(--text-main); }
+        .stat-label { font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        h2 { 
+            margin-top: 0; 
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .full-width { grid-column: span 2; }
+
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: 600; font-size: 0.9rem; }
+        
+        input, select, textarea {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            cursor: pointer;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; width: 100%; margin-top: 10px; }
+        .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+        .search-container {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding-left: 40px;
+            box-sizing: border-box;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .table-wrapper { overflow-x: auto; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 15px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #64748b;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .badge-1 { background: #fee2e2; color: #991b1b; } /* Tinggi */
+        .badge-2 { background: #fef9c3; color: #854d0e; } /* Sedang */
+        .badge-3 { background: #dcfce7; color: #166534; } /* Rendah */
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .row-done { background-color: #f8fafc; opacity: 0.7; }
+        .row-done .task-text { text-decoration: line-through; color: #94a3b8; }
+
+        .actions { display: flex; gap: 8px; }
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-done { background: var(--success); }
+        .btn-delete { background: var(--danger); }
+        .action-btn:hover { opacity: 0.8; transform: scale(1.05); }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fas fa-graduation-cap"></i> Sistem Todo List Akademik</h1>
+        <p>Mahasiswa: <strong>Fernanda Tri Prastya</strong> | NIM: <strong>09011282530041</strong></p>
+    </header>
+
+    <!-- Modul 5: Statistik (List & Dictionary processing) -->
+    <div class="stats-grid" id="statsArea"></div>
+
+    <div class="card">
+        <h2><i class="fas fa-plus-circle"></i> Tambah Tugas (Modul 1-5)</h2>
+        <form id="todoForm">
+            <div class="form-grid">
+                <div class="input-group">
+                    <label>Kode Tugas (Unik)</label>
+                    <input type="text" id="kode" placeholder="Contoh: PBO01" required>
+                </div>
+                <div class="input-group">
+                    <label>Mata Kuliah</label>
+                    <input type="text" id="matkul" placeholder="Nama Mata Kuliah" required>
+                </div>
+                <div class="input-group full-width">
+                    <label>Deskripsi Tugas</label>
+                    <textarea id="deskripsi" rows="2" placeholder="Detail tugas yang harus dikerjakan..." required></textarea>
+                </div>
+                <div class="input-group">
+                    <label>Prioritas (Modul 5: Tuple)</label>
+                    <select id="prioritas">
+                        <option value="1">1 - Tinggi (★★★)</option>
+                        <option value="2" selected>2 - Sedang (★★☆)</option>
+                        <option value="3">3 - Rendah (★☆☆)</option>
+                    </select>
+                </div>
+                <div class="input-group" style="justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan ke Database
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-tasks"></i> Daftar & Manajemen Tugas</h2>
+        
+        <!-- Fitur Pencarian / Cek Status -->
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" onkeyup="filterTugas()" placeholder="Cari berdasarkan Kode, Mata Kuliah, atau Status...">
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kode</th>
+                        <th>Mata Kuliah</th>
+                        <th>Prioritas</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="todoTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Inisialisasi Database (Modul 6: JSON Simulation via LocalStorage)
+    let db = JSON.parse(localStorage.getItem('fernanda_todo_db')) || { tugas: [], counter: 0 };
+
+    const form = document.getElementById('todoForm');
+    const tableBody = document.getElementById('todoTableBody');
+    const statsArea = document.getElementById('statsArea');
+
+    function updateApp() {
+        localStorage.setItem('fernanda_todo_db', JSON.stringify(db));
+        renderTabel();
+        renderStats();
+    }
+
+    // MODUL 4 & 5: Fungsi Tambah & Validasi
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const kode = document.getElementById('kode').value.trim().toUpperCase();
+        
+        // Validasi Kode Unik (Modul 5: Set simulation)
+        if (db.tugas.some(t => t.kode === kode)) {
+            alert(`[!] Kode '${kode}' sudah ada. Gunakan kode lain.`);
+            return;
+        }
+
+        const tugasBaru = {
+            id: Date.now(),
+            kode: kode,
+            matkul: document.getElementById('matkul').value,
+            deskripsi: document.getElementById('deskripsi').value,
+            prioritas: parseInt(document.getElementById('prioritas').value),
+            status: "Belum"
+        };
+
+        db.tugas.push(tugasBaru);
+        db.counter++;
+        updateApp();
+        form.reset();
+    });
+
+    // MODUL 2: Kondisi & Update Status
+    function tandaiSelesai(id) {
+        const idx = db.tugas.findIndex(t => t.id === id);
+        if (idx !== -1) {
+            db.tugas[idx].status = "Selesai";
+            updateApp();
+        }
+    }
+
+    // MODUL 4 & 5: Fungsi Hapus dengan Kondisi
+    function hapusTugas(id) {
+        const tugas = db.tugas.find(t => t.id === id);
+        if (tugas.status !== "Selesai") {
+            alert("[!] Hanya tugas berstatus 'Selesai' yang dapat dihapus.");
+            return;
+        }
+        
+        if (confirm(`Hapus tugas ${tugas.kode}?`)) {
+            db.tugas = db.tugas.filter(t => t.id !== id);
+            updateApp();
+        }
+    }
+
+    // MODUL 3 & 5: Perulangan & Tampilan Data
+    function renderTabel() {
+        tableBody.innerHTML = '';
+        db.tugas.forEach(t => {
+            const isDone = t.status === 'Selesai';
+            const row = document.createElement('tr');
+            if(isDone) row.className = 'row-done';
+
+            row.innerHTML = `
+                <td><strong class="task-text">${t.kode}</strong></td>
+                <td><div class="task-text">${t.matkul}</div><small style="color:#94a3b8">${t.deskripsi}</small></td>
+                <td><span class="badge badge-${t.prioritas}">${t.prioritas === 1 ? 'TINGGI' : t.prioritas === 2 ? 'SEDANG' : 'RENDAH'}</span></td>
+                <td>
+                    <span class="status-pill" style="color: ${isDone ? 'var(--success)' : 'var(--warning)'}">
+                        <i class="fas ${isDone ? 'fa-check-circle' : 'fa-clock'}"></i> ${t.status}
+                    </span>
+                </td>
+                <td class="actions">
+                    ${!isDone ? `<button class="action-btn btn-done" onclick="tandaiSelesai(${t.id})" title="Selesai"><i class="fas fa-check"></i></button>` : ''}
+                    <button class="action-btn btn-delete" onclick="hapusTugas(${t.id})" title="Hapus"><i class="fas fa-trash"></i></button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // MODUL 5: Statistik (Calculation)
+    function renderStats() {
+        const total = db.tugas.length;
+        const selesai = db.tugas.filter(t => t.status === "Selesai").length;
+        const belum = total - selesai;
+        const p1 = db.tugas.filter(t => t.prioritas === 1 && t.status === "Belum").length;
+
+        statsArea.innerHTML = `
+            <div class="stat-box"><span class="stat-val">${total}</span><span class="stat-label">Total Tugas</span></div>
+            <div class="stat-box" style="border-color: var(--success)"><span class="stat-val">${selesai}</span><span class="stat-label">Selesai</span></div>
+            <div class="stat-box" style="border-color: var(--warning)"><span class="stat-val">${belum}</span><span class="stat-label">Belum Selesai</span></div>
+            <div class="stat-box" style="border-color: var(--danger)"><span class="stat-val">${p1}</span><span class="stat-label">Prioritas Tinggi</span></div>
+        `;
+    }
+
+    // Fitur Cari & Filter (Cek Status / Cari Tugas)
+    function filterTugas() {
+        const input = document.getElementById("searchInput").value.toUpperCase();
+        const rows = tableBody.getElementsByTagName("tr");
+
+        for (let i = 0; i < rows.length; i++) {
+            const text = rows[i].textContent || rows[i].innerText;
+            rows[i].style.display = text.toUpperCase().includes(input) ? "" : "none";
+        }
+    }
+
+    // Jalankan saat pertama kali buka
+    updateApp();
+</script>
+
+</body>
+</html>
